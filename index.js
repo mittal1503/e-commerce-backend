@@ -3,25 +3,13 @@ const app = express();
 const cors = require('cors')
 app.use(cors());
 
-const dbConnection = require('./config/database');
-const { default: mongoose } = require('mongoose');
 const {registerUser,loginUser} = require('./routing/user')
 const {registerValidation,loginValidation} = require('./middleware/validation')
-const db = mongoose.connection
+const {addItem,getItems} = require('./routing/item')
+
 app.use(express.json())
 require('dotenv').config();
 
-dbConnection();
-
-db.on('connected', function(){
-    console.log("connected");
-})
-db.on('error', function(err){
-   console.log(err)
-})
-db.on('disconnected', function(){
-    console.log("disconnected");
-})
 
 app.post('/register',registerValidation,async(req,res)=>{
     try{
@@ -43,6 +31,14 @@ app.post('/login',loginValidation,async(req,res)=>{
    catch(err){
     console.log(err)
    }
+})
+
+app.post('/additem',(req,res)=>{
+  addItem(req,res)
+})
+
+app.get('/getitem',async(req,res)=>{
+  getItems(req,res);
 })
 app.listen(process.env.port,(req,res)=>{
     console.log("app is runnig on http://127.0.0.1:3000/")

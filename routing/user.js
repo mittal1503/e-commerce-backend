@@ -1,16 +1,21 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt')
+const {PrismaClient} = require("@prisma/client")
 
+const prisma = new PrismaClient();
 const registerUser = async (req, res) => {
+
   try {
     const saltRound = 10;
     const hashpassword = await bcrypt.hash(req.body.password, saltRound);
-    const newUser = new User({
+    const user1 = {
       name: req.body.name,
       email: req.body.email,
-      password: hashpassword
-    })
-    const user = await newUser.save();
+      password: hashpassword,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+    const user = await prisma.user.create({data:user1});
     return user;
   }
   catch (err) {
@@ -22,7 +27,12 @@ const registerUser = async (req, res) => {
 
 const loginUser = async(req,res) => {
   try{
-    const user = await User.findOne({email:req.body.email})
+    const user = await prisma.user.findUnique({
+      where:{
+        email:req.body.email
+      }
+    })
+    console.log("user",user)
     if(!user)
     {
       return res.send("user not found")
@@ -35,6 +45,7 @@ const loginUser = async(req,res) => {
     return user;
   }
   catch(err){
+    console.log("error",err)
     res.send(err)
   }
 
