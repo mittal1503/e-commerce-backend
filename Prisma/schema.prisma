@@ -9,9 +9,12 @@ datasource db{
 
 model User{
     id Int @id @default(autoincrement())
+    googleId String @unique
     name String
     email String @unique
-    password String
+    password String @default("")
+    carts Cart?
+    // item Item[] one to many with item
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now())
 }
@@ -22,6 +25,29 @@ model Item {
     price Int
     description String
     image String
+    // userid Int
+    cartItem CartItem[]
+    // user User @relation(fields: [userid],references: [id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+model Cart{
+    id Int @id @default(autoincrement())
+    userid Int @unique
+    user User @relation(fields: [userid],references: [id])
+    cartitem CartItem[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+}
+
+model CartItem{
+    id Int @id @default(autoincrement())
+    cartid Int 
+    itemid Int
+    qty Int
+    item Item @relation(fields: [itemid],references: [id])
+    cart Cart @relation(fields: [cartid], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now())
 }
